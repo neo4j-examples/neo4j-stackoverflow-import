@@ -1,0 +1,28 @@
+== Stackoverflow dump to CSV converter
+
+Download the Stack-Exchange dump you're interested in from the https://archive.org/details/stackexchange[internet archive].
+
+Unzip the files using 7zip on your system (might need to install pk7zip, e.g. with apt-get/homebrew).
+You can optionally zip the individual xml files with gzip to save some space.
+
+This script is run with individual files (e.g. `Users.xml.gz`) as parameters.
+
+You can optionall provide the comma separated keys to extract after a colon: 
+
+----
+mvn compile exec:java -Dexec.mainClass=org.neo4j.example.so.XmlToCsvConverter \ 
+-Dexec.args="Users.xml.gz:Id,Reputation,CreationDate,DisplayName,LastAccessDate   
+ Posts.xml.gz:Id,CreationDate,Score,OwnerUserId,Title,Tags,AnswerCount"
+...
+----
+
+A quick `sed` script for extracting those keys from the first row is:
+
+`gzip -dc Users.xml.gz | head -3 | tail -1 | sed -e 's/="[^"]*" /,/g'`
+
+If you don't provide the keys, it samples the first 100 rows to learn about the keys present and uses them.
+
+The first few rows might have fewer columns than latter ones if it learns about new key-columns later on.
+Unknown columns will be empty.
+
+It will output a compressed csv file with the data, e.g `Users.csv.gz` and a header file `Users_header.csv` per input file.
