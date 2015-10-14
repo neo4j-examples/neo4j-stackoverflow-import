@@ -1,9 +1,73 @@
 == Stackoverflow dump to CSV converter
 
+See this blog post for details: http://neo4j.com/blog/import-10m-stack-overflow-questions/
+
 Download the Stack-Exchange dump you're interested in from the https://archive.org/details/stackexchange[internet archive].
 
 Unzip the files using 7zip on your system (might need to install pk7zip, e.g. with apt-get/homebrew).
 You can optionally zip the individual xml files with gzip to save some space.
+
+=== Convert a Stackoverflow Dump
+
+These files and fields are currently handled out of the box
+
+
+* Posts("Id#postId:ID(Post)", "Title#title", "PostTypeId#postType:INT", "CreationDate#createdAt", "Score#score:INT",
+        "ViewCount#views:INT", "AnswerCount#answers:INT", "CommentCount#comments:INT", "FavoriteCount#favorites:INT", "LastEditDate#updatedAt")
+
+** Posts also creates
+** PostsRels(":START_ID(Post)", ":END_ID(Post)"); - all children of post
+** PostsAnswers(":START_ID(Post)", ":END_ID(Post)") - the accepted answer
+** UsersPosts(":START_ID(User)", ":END_ID(Post)"); - the user who created this post
+** TagsPosts(":START_ID(Post)", ":END_ID(Tag)"); - one entry per tag
+
+* Users("Id#userId:ID(User)", "DisplayName#name", "Reputation#reputation:INT", "CreationDate#createdAt", "LastAccessDate#accessedAt",
+        "WebsiteUrl#url", "Location#location", "Views#views:INT", "UpVotes#upvotes:INT", "DownVotes#downvotes:INT", "Age#age:INT", "AccountId#accountId:INT");
+* Tags("TagName#tagId:ID(Tag)", "Count#count:INT", "WikiPostId#wikiPostId:INT"),
+
+
+----
+mvn compile exec:java -Dexec.mainClass=org.neo4j.example.so.StackOverflowConverter -Dexec.args="/path/to/data"
+----
+
+Will create in the data directory these files
+
+----
+Posts.csv.gz
+PostsAnswers.csv.gz
+PostsAnswers_header.csv
+PostsRels.csv.gz
+PostsRels_header.csv
+Posts_header.csv
+Tags.csv.gz
+TagsPosts.csv.gz
+TagsPosts_header.csv
+Tags_header.csv
+Users.csv.gz
+UsersPosts.csv.gz
+UsersPosts_header.csv
+Users_header.csv
+----
+
+=== Import
+
+Import with:
+
+----
+export NEO=/path/to/neo
+$NEO/bin/neo4j-import \
+  --into stackoverflow.db \
+  --id-type string \
+  --nodes:Post Posts_header.csv,Posts.csv.gz \
+  --nodes:User Users_header.csv,Users.csv.gz \
+  --nodes:Tag  Tags_header.csv,Tags.csv.gz \
+  --relationships:PARENT_OF PostsRels_header.csv,PostsRels.csv.gz \
+  --relationships:ANSWER PostsAnswers_header.csv,PostsAnswers.csv.gz \
+  --relationships:HAS_TAG TagsPosts_header.csv,TagsPosts.csv.gz \
+  --relationships:POSTED UsersPosts_header.csv,UsersPosts.csv.gz
+----
+
+=== Internals
 
 This script is run with individual files (e.g. `Users.xml.gz`) as parameters.
 
