@@ -12,19 +12,21 @@ You can optionally zip the individual xml files with gzip to save some space.
 These files and fields are currently handled out of the box
 
 
-* Posts("Id#postId:ID(Post)", "Title#title", "PostTypeId#postType:INT", "CreationDate#createdAt:datetime", "Score#score:INT",
+* Posts("Id#id:ID(Post)", "Title#title", "PostTypeId#postType:INT", "CreationDate#createdAt:datetime", "Score#score:INT",
         "ViewCount#views:INT", "AnswerCount#answers:INT", "CommentCount#comments:INT", "FavoriteCount#favorites:INT", "LastEditDate#updatedAt:datetime")
 
-** Posts also creates
+* Posts also creates
+
 ** PostsRels(":END_ID(Post)", ":START_ID(Post)"); - all answers of a question
 ** PostsAnswers(":START_ID(Post)", ":END_ID(Post)") - the accepted answer
 ** UsersPosts(":START_ID(User)", ":END_ID(Post)"); - the user who created this post
 ** TagsPosts(":START_ID(Post)", ":END_ID(Tag)"); - one entry per tag
 
-* Users("Id#userId:ID(User)", "DisplayName#name", "Reputation#reputation:INT", "CreationDate#createdAt:datetime", "LastAccessDate#accessedAt:datetime",
+* Users("Id#id:ID(User)", "DisplayName#name", "Reputation#reputation:INT", "CreationDate#createdAt:datetime", "LastAccessDate#accessedAt:datetime",
         "WebsiteUrl#url", "Location#location", "Views#views:INT", "UpVotes#upvotes:INT", "DownVotes#downvotes:INT", "Age#age:INT", "AccountId#accountId:INT");
 * Tags("TagName#name:ID(Tag)", "Count#count:INT", "WikiPostId#wikiPostId:INT"),
 
+Need to extend limits for XML processing as the stackoverflow dumps are too large.
 
 ----
 mvn compile exec:java -Dexec.mainClass=org.neo4j.example.so.StackOverflowConverter -Dexec.args="/path/to/data" -DentityExpansionLimit=0 -DtotalEntitySizeLimit=0 -Djdk.xml.totalEntitySizeLimit=0
@@ -58,6 +60,7 @@ export NEO=/path/to/neo
 $NEO/bin/neo4j-import \
   --into stackoverflow.db \
   --id-type string \
+  --bad-tolerance  true --skip-bad-entries-logging true --skip-bad-relationships true --skip-duplicate-nodes true \
   --nodes:Post Posts_header.csv,Posts.csv.gz \
   --nodes:User Users_header.csv,Users.csv.gz \
   --nodes:Tag  Tags_header.csv,Tags.csv.gz \
