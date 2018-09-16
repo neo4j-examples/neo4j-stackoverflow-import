@@ -25,11 +25,11 @@ public class StackOverflowConverter {
 //        PostLinks(),
 //        Votes(),
 
-        Posts("Id#postId:ID(Post)", "Title#title", "PostTypeId#postType:INT", "CreationDate#createdAt", "Score#score:INT", "ViewCount#views:INT", "AnswerCount#answers:INT", "CommentCount#comments:INT", "FavoriteCount#favorites:INT", "LastEditDate#updatedAt") { // ,"Body#body"
+        Posts("Id#id:ID(Post)", "Title#title", "PostTypeId#postType:INT", "CreationDate#createdAt:datetime", "Score#score:INT", "ViewCount#views:INT", "AnswerCount#answers:INT", "CommentCount#comments:INT", "FavoriteCount#favorites:INT", "LastEditDate#updatedAt:datetime") { // ,"Body#body"
             { callback = new PostsProcessCallback(); }
         },
-        Tags("TagName#tagId:ID(Tag)", "Count#count:INT", "WikiPostId#wikiPostId:INT"),
-        Users("Id#userId:ID(User)", "DisplayName#name", "Reputation#reputation:INT", "CreationDate#createdAt", "LastAccessDate#accessedAt", "WebsiteUrl#url", "Location#location", "Views#views:INT", "UpVotes#upvotes:INT", "DownVotes#downvotes:INT", "Age#age:INT", "AccountId#accountId:INT");
+        Tags("TagName#name:ID(Tag)", "Count#count:INT", "WikiPostId#wikiPostId:INT"),
+        Users("Id#id:ID(User)", "DisplayName#name", "Reputation#reputation:INT", "CreationDate#createdAt:datetime", "LastAccessDate#accessedAt:datetime", "WebsiteUrl#url", "Location#location", "Views#views:INT", "UpVotes#upvotes:INT", "DownVotes#downvotes:INT", "Age#age:INT", "AccountId#accountId:INT");
 
         String[] columns;
         ProcessCallback callback = ProcessCallback.NONE;
@@ -110,7 +110,7 @@ public class StackOverflowConverter {
                 usersPosts.close();
                 tagsPosts.close();
 
-                XmlToCsvConverter.writeHeader(path("PostsRels"), ":START_ID(Post)", ":END_ID(Post)");
+                XmlToCsvConverter.writeHeader(path("PostsRels"), ":END_ID(Post)", ":START_ID(Post)");
                 XmlToCsvConverter.writeHeader(path("PostsAnswers"), ":START_ID(Post)", ":END_ID(Post)");
                 XmlToCsvConverter.writeHeader(path("UsersPosts"), ":START_ID(User)", ":END_ID(Post)");
                 XmlToCsvConverter.writeHeader(path("TagsPosts"), ":START_ID(Post)", ":END_ID(Tag)");
