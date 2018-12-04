@@ -37,6 +37,8 @@
                 server_url: "bolt://stackdata.neo4jlabs.com:80",
                 server_user: "stackoverflow",
                 server_password: "stackoverflow",
+                encrypted: "ENCRYPTION_ON",
+                trust: "TRUST_CUSTOM_CA_SIGNED_CERTIFICATES",
                 labels: {
                     "Tag": {
                         "caption": "name",
@@ -50,7 +52,7 @@
                         "caption": false
                     }
                 },
-                initial_cypher: "MATCH path = (n:Tag {name:'javascript'})-[r:SIMILAR*..5]->(m) RETURN path LIMIT 1000"
+                initial_cypher: "MATCH path = (n:Tag {name:'javascript'})-[r:SIMILAR*..10]->(m) RETURN path LIMIT 1000"
             };
 
             viz = new NeoVis.default(config);
@@ -66,7 +68,7 @@
 <div>
 Cypher query: 
 <div><textarea rows="4" cols=50 id="cypher">
-MATCH path = (n:Tag {name:'javascript'})-[r:SIMILAR*..5]->(m) RETURN path LIMIT 1000
+MATCH path = (n:Tag {name:'javascript'})-[r:SIMILAR*..10]->(m) RETURN path LIMIT 1000
 </textarea></div>
 <div>
 	<input type="submit" value="Submit" id="reload">
